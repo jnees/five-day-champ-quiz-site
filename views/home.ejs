@@ -2,13 +2,18 @@
 <div class="container">
 
   <div class="card">
-  <div class="card-body">
-    <h1 class="card-title"><%= foundClues.category %></h1>
-    <!-- <h6 class="card-subtitle mb-2 text-muted"><%= foundClues.answer %></h6> -->
-    <p class="card-text"><%= foundClues.answer %></p>
-    <a href="#" class="card-link">Show Question</a>
-    <a href="#" class="card-link">Next</a>
+    <div class="card-body">
+      <h1 class="card-title"><%= foundClues.category %></h1>
+      <p class="card-text"><%= foundClues.answer %></p>
+      <h6 id="question" class="card-subtitle mb-2 text-muted"><%= foundClues.question %></h6>
+    </div>
   </div>
 </div>
+
+<div class="container">
+  <button onClick="showQuestion()" class="btn btn-outline-primary control-button" type="button">Show Answer</button>
+  <form class="" action="/" method="get">
+    <button class="btn btn-primary control-button" type="submit" name="button">Next</button>
+  </form>
 </div>
 <%- include("footer") %>
