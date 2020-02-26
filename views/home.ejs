@@ -1,6 +1,14 @@
 <%- include("header") %>
 <div class="container">
-  <h1><%= foundClues.category %></h1>
-  <p><%= foundClues.answer %></p>
+
+  <div class="card">
+  <div class="card-body">
+    <h1 class="card-title"><%= foundClues.category %></h1>
+    <!-- <h6 class="card-subtitle mb-2 text-muted"><%= foundClues.answer %></h6> -->
+    <p class="card-text"><%= foundClues.answer %></p>
+    <a href="#" class="card-link">Show Question</a>
+    <a href="#" class="card-link">Next</a>
+  </div>
+</div>
 </div>
 <%- include("footer") %>
