@@ -31,18 +31,57 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
-// LOCAL DB Connect for development
-mongoose.connect("mongodb://localhost:27017/quizDB",
-  {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    autoIndex: false
-  });
+// DB connect to Mongo Atlas
+const uri = "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS + process.env.DB_CLUSTER;
+mongoose.connect(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  autoIndex: false
+});
+
 mongoose.set('useCreateIndex', true);
+
+// Persistent Session Storage
+app.use(session({
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: 7 * 24 * 60 * 60
+  })
+}));
+
+// DB Schemas
+const clueSchema = new mongoose.Schema({
+  round: Number,
+  value: Number,
+  daily_double: String,
+  category: String,
+  comments: String,
+  answer: String,
+  question: String,
+  air_date: String,
+  notes: String
+});
+
+clueSchema.plugin(findOrCreate);
+const Clue = mongoose.model("Clue", clueSchema);
+
 
 // ROUTE -- root
 app.get("/", function(req, res){
-  res.send("Hello World");
+
+  Clue.aggregate([ { $sample: { size: 1 } } ], (err, foundClues) => {
+    console.log(foundClues[0]);
+    if(err){
+      console.log(err);
+      res.send("Error retreiving clue.");
+    } else {
+      let options = {foundClues: foundClues[0]};
+      res.render("home", options);
+    }
+  });
 });
 
 // Listener - Heroku env port or localhost default if running locally.
