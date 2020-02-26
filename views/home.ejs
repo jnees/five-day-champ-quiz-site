@@ -3,9 +3,9 @@
 
   <div class="card">
     <div class="card-body">
-      <h1 class="card-title"><%= foundClues.category %></h1>
-      <p class="card-text"><%= foundClues.answer %></p>
-      <h6 id="question" class="card-subtitle mb-2 text-muted"><%= foundClues.question %></h6>
+      <h1 class="card-title"><%= foundClues.category.replace("\\", "") %></h1>
+      <p class="card-text"><%= foundClues.answer.replace("\\", "") %></p>
+      <h6 id="question" class="card-subtitle mb-2 text-muted"><%= foundClues.question.replace("\\", "") %></h6>
     </div>
   </div>
 </div>
