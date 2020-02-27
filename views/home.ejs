@@ -1,19 +1,39 @@
 <%- include("header") %>
+<%- include("navbar") %>
+
 <div class="container">
 
-  <div class="card">
-    <div class="card-body">
-      <h1 class="card-title"><%= foundClues.category.replace("\\", "") %></h1>
-      <p class="card-text"><%= foundClues.answer.replace("\\", "") %></p>
-      <h6 id="question" class="card-subtitle mb-2 text-muted"><%= foundClues.question.replace("\\", "") %></h6>
+
+<!-- Clue -->
+  <div class="container">
+    <div class="card">
+      <div class="card-body">
+        <h1 class="card-title"><%= foundClues.category.replace(/\\/g, "") %></h1>
+        <p class="card-text"><%= foundClues.answer.replace(/\\/g, "") %></p>
+        <h6 id="question" class="card-subtitle mb-2"><%= foundClues.question.replace(/\\/g, "") %></h6>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="container">
-  <button onClick="showQuestion()" class="btn btn-outline-primary control-button" type="button">Show Answer</button>
-  <form class="" action="/" method="get">
-    <button class="btn btn-primary control-button" type="submit" name="button">Next</button>
-  </form>
+
+<!-- User Inputs --->
+  <div class="container">
+    <button onClick="showQuestion()" class="btn btn-outline-primary control-button" type="button">Show Answer</button>
+
+    <div class="container row buttonRow">
+      <div class="col sm">
+        <form class="answer-form" action="/" method="get">
+          <button class="btn btn-danger control-button incorrect" type="submit" name="button"><i class="fa fa-times"></i></button>
+        </form>
+      </div>
+      <div class="col sm">
+        <form class="answer-form" action="/" method="get">
+          <button class="btn btn-success control-button correct" type="submit" name="button"><i class="fa fa-check"></i></button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 <%- include("footer") %>

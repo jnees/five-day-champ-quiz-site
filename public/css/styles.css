@@ -6,6 +6,7 @@
   padding: 25px;
   text-align: center;
   margin: 15px 0px;
+  padding: 0;
 }
 
 .card-title {
@@ -19,15 +20,48 @@
   text-transform: uppercase;
 }
 
+.buttonRow {
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
+.answer-form {
+  width: 100%;
+  padding: 0px;
+  margin: 0px;
+}
+
 
 .control-button {
   width: 100%;
   margin: 10px 0;
-  font-size: 1.2rem;
+  font-size: 1.8rem;
+  background: none;
+  padding: 0px;
+}
+
+.col {
+  padding: 0px;
+}
+
+.correct {
+  margin-top: 70px;
+  font-size: 4rem;
+  color: green;
+  border: none;
+}
+
+.incorrect {
+  margin-top: 70px;
+  font-size: 4rem;
+  color: red;
+  border: none;
 }
 
 #question {
   font-family: 'Amethysta';
+  color: #bbb;
   display: none;
   text-transform: uppercase;
   font-size: 1.2rem;
