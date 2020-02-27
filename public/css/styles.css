@@ -38,7 +38,7 @@
   margin: 10px 0;
   font-size: 1.8rem;
   background: none;
-  padding: 0px;
+  padding: 3px;
 }
 
 .col {
@@ -46,15 +46,15 @@
 }
 
 .correct {
-  margin-top: 40px;
-  font-size: 5rem;
+  margin-top: 20px;
+  font-size: 4.5rem;
   color: green;
   border: none;
 }
 
 .incorrect {
-  margin-top: 40px;
-  font-size: 5rem;
+  margin-top: 20px;
+  font-size: 4.5rem;
   color: red;
   border: none;
 }
