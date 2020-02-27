@@ -46,15 +46,15 @@
 }
 
 .correct {
-  margin-top: 70px;
-  font-size: 4rem;
+  margin-top: 40px;
+  font-size: 5rem;
   color: green;
   border: none;
 }
 
 .incorrect {
-  margin-top: 70px;
-  font-size: 4rem;
+  margin-top: 40px;
+  font-size: 5rem;
   color: red;
   border: none;
 }
