@@ -97,6 +97,19 @@ passport.deserializeUser(function(id, done) {
   });
 });
 
+// Passport Google OAuth20 strategy
+passport.use(new GoogleStrategy({
+    clientID: process.env.GOOGLE_CLIENT_ID,
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    callbackURL: "/auth/google/home"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ googleId: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
+
 //  Helper Functions
 
 function getUserId(request){
@@ -203,6 +216,19 @@ app.route("/register")
       }
     });
   });
+
+// ROUTE - google authenticate
+app.route("/auth/google")
+
+  .get(passport.authenticate('google', {
+    scope: ['profile']
+  }));
+
+app.route("/auth/google/home")
+
+    .get(passport.authenticate('google', {failureRedirect: "/login"}), function(req, res){
+      res.redirect("/");
+    });
 
 // ROUTE - Logout
 app.route("/logout")
