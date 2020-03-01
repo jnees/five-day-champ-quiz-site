@@ -1,0 +1,50 @@
+<%- include("header") %>
+
+<div class="container-flex mt-5 google-reg-box">
+  <img id="banner" src="images/FIVEDAYCHAMP.png"></img>
+  <div class="row d-flex justify-content-center">
+
+    <div class="col-sm-4 register-goog-btn">
+          <a id="goog-reg-btn" class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+            <i class="fa fa-google"></i>
+            Login using Google
+          </a>
+    </div>
+  </div>
+
+  <div class="row register-hr">
+    <div class="col"><hr></div>
+    <div class="col-auto">OR</div>
+    <div class="col"><hr></div>
+  </div>
+  <h2>Log-in with email</h2>
+
+  <div class="row d-flex justify-content-center">
+    <div id="create-account-form" class="col-sm-8">
+      <div  class="card">
+        <div class="card-body">
+
+          <!-- Makes POST request to /login route -->
+          <form class="register-form" action="/login" method="POST">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" class="form-control" name="username">
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" class="form-control" name="password">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </form>
+
+        </div>
+        <!-- <a class="forgot" href="/user/forgot">Forgot Password?</a> -->
+
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<%- include("footer") %>

@@ -26,6 +26,17 @@ app.use(bodyParser.urlencoded(
   {extended: true}
 ));
 
+// Persistent Session Storage
+app.use(session({
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: true,
+  store: new MongoStore({
+    mongooseConnection: mongoose.connection,
+    ttl: 7 * 24 * 60 * 60
+  })
+}));
+
 app.use(flash());
 
 app.use(passport.initialize());
@@ -41,18 +52,8 @@ mongoose.connect(uri, {
 
 mongoose.set('useCreateIndex', true);
 
-// Persistent Session Storage
-app.use(session({
-  secret: process.env.SECRET,
-  resave: false,
-  saveUninitialized: true,
-  store: new MongoStore({
-    mongooseConnection: mongoose.connection,
-    ttl: 7 * 24 * 60 * 60
-  })
-}));
 
-// DB Schemas
+// DB Schema - Clue
 const clueSchema = new mongoose.Schema({
   round: Number,
   value: Number,
@@ -65,12 +66,77 @@ const clueSchema = new mongoose.Schema({
   notes: String
 });
 
-clueSchema.plugin(findOrCreate);
 const Clue = mongoose.model("Clue", clueSchema);
 
+// DB Schema - User
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String,
+  googleId: String,
+  alias: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
+});
+
+// Passport Authentication Local Strategy
+userSchema.plugin(passportLocalMongoose);
+userSchema.plugin(findOrCreate);
+
+const User = mongoose.model("User", userSchema);
+
+// Passport local user strategy, serialize/deserialize user.
+passport.use(User.createStrategy());
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+//  Helper Functions
+
+function getUserId(request){
+  let userId = "";
+  if(request.isAuthenticated() === true){
+     userId = request.user.id;
+   }
+   return userId;
+}
+
+function getUserAlias(request){
+  let userAlias = "";
+  if(request.isAuthenticated() === true){
+     userAlias = request.user.alias;
+   }
+   return userAlias;
+}
+
+function validAlias(alias){
+  // Check length (2-16) and special chars (only alphanumeric and underscore allowed);
+  const format = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{2,16}$/;
+  const passed = (format.test(alias));
+
+  return passed;
+}
+
+// ROUTER
 
 // ROUTE -- root
 app.get("/", function(req, res){
+
+  if(req.isAuthenticated() === false){
+    res.redirect("/login");
+    return;
+  }
+
+  const username = getUserId(req);
+  const alias = getUserAlias(req);
+
+
 
   Clue.aggregate([ { $sample: { size: 1 } } ], (err, foundClues) => {
     console.log(foundClues[0]);
@@ -78,11 +144,73 @@ app.get("/", function(req, res){
       console.log(err);
       res.send("Error retreiving clue.");
     } else {
-      let options = {foundClues: foundClues[0]};
+      let options = {
+        foundClues: foundClues[0],
+        username: username,
+        alias: alias
+      };
+
       res.render("home", options);
     }
   });
 });
+
+// Route -- login
+app.route("/login")
+
+  .get((req, res) => {
+    const username = getUserId(req);
+    const alias = getUserAlias(req);
+
+    let options = {username: username, alias: alias};
+    res.render("login", options);
+  })
+
+  .post(passport.authenticate("local", {failureRedirect: "/login"}), function(req, res){
+      res.redirect("/");
+  });
+
+//Route -- register
+app.route("/register")
+
+  .get((req, res) => {
+    const username = getUserId(req);
+    const alias = getUserAlias(req);
+
+    let options = {username: username, alias: alias};
+
+    res.render("register", options);
+  })
+
+  .post((req, res) => {
+    // Validate username.
+    const valid = validAlias(req.body.alias);
+    if (!valid) {
+      req.flash("usernameInvalid", "Username not valid. Please select another.");
+      res.redirect("/register");
+    }
+
+    // Check username. If taken, flash err.
+    User.register({username: req.body.username, alias: req.body.alias}, req.body.password, (err, user) => {
+      if (err) {
+        console.log(err);
+        req.flash("usernameTaken", "That username is already in use. Please select another");
+        res.redirect("/register");
+      } else {
+        passport.authenticate("local")(req, res, () => {
+          res.redirect("/");
+        });
+      }
+    });
+  });
+
+// ROUTE - Logout
+app.route("/logout")
+  .get((req, res) => {
+
+    req.logout();
+    res.redirect("/");
+  });
 
 // Listener - Heroku env port or localhost default if running locally.
 let port = process.env.PORT;

@@ -1,12 +1,12 @@
 <%- include("header") %>
 <%- include("navbar") %>
 
-<div class="container">
+<div id="main" class="container">
 
 
 <!-- Clue -->
   <div class="container">
-    <div class="card">
+    <div class="card clue">
       <div class="card-body">
         <h1 class="card-title"><%= foundClues.category.replace(/\\/g, "") %></h1>
         <p class="card-text"><%= foundClues.answer.replace(/\\/g, "") %></p>
