@@ -74,6 +74,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   googleId: String,
   alias: String,
+  categories: Array,
   resetPasswordToken: String,
   resetPasswordExpires: Date
 });
@@ -136,7 +137,20 @@ function validAlias(alias){
   return passed;
 }
 
-// ROUTER
+// Clue Query Builder
+function buildMatchQuery(arr){
+  // User category terms from prefs => match query for clue.aggregate()
+  let words = arr;
+  let q = {$or : []};
+
+  words.forEach(val => {
+    var term = val.toUpperCase(val);
+    var frag = {category: RegExp(term)};
+    q.$or.push(frag);
+  });
+
+  return q;
+}
 
 // ROUTE -- root
 app.get("/", function(req, res){
@@ -148,25 +162,77 @@ app.get("/", function(req, res){
 
   const username = getUserId(req);
   const alias = getUserAlias(req);
+  const matchQuery = buildMatchQuery(req.user.categories);
 
+  Clue.aggregate()
 
+    .match(matchQuery)
+    .sample(1)
+    .exec(function (err, foundClues) {
+      if(err){
+        console.log(err);
+        res.send("Error retreiving clue.");
+      } else {
+        let options = {
+          foundClues: foundClues[0],
+          username: username,
+          alias: alias
+        };
 
-  Clue.aggregate([ { $sample: { size: 1 } } ], (err, foundClues) => {
-    console.log(foundClues[0]);
-    if(err){
-      console.log(err);
-      res.send("Error retreiving clue.");
-    } else {
-      let options = {
-        foundClues: foundClues[0],
-        username: username,
-        alias: alias
-      };
-
-      res.render("home", options);
-    }
-  });
+        res.render("home", options);
+    }}
+  );
 });
+
+
+// Route - Preferences
+app.route("/preferences")
+
+  .get((req, res) => {
+
+    const username = getUserId(req);
+    const alias = getUserAlias(req);
+    const categories = req.user.categories;
+
+    options = {username: username,
+               alias: alias,
+               categories: categories,
+               updateHandler: 'updateHandler();'
+             };
+    res.render("preferences", options);
+  });
+
+// Route - user add category to preferences
+//:cat([A-Za-z0-9\s%20-]+)
+app.route("/preferences/categories/add")
+
+  .post((req, res) => {
+      let term = req.body.newTerm;
+      let user = req.user;
+      console.log(user);
+      user.categories.push(term);
+      user.save(() => {
+        res.redirect('/preferences');
+      });
+
+  });
+
+  // Route - user delete category from preferences
+  //:cat([A-Za-z0-9\s%20-]+)
+app.route("/preferences/categories/remove")
+
+  .post((req, res) => {
+      let term = req.body.term;
+      let user = req.user;
+      const index = user.categories.indexOf(term);
+        if (index > -1) {
+          user.categories.splice(index, 1);
+        }
+      user.save(() => {
+        res.redirect('/preferences');
+      });
+
+  });
 
 // Route -- login
 app.route("/login")

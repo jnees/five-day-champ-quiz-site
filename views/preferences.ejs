@@ -1,0 +1,39 @@
+<%- include("header") %>
+<%- include("navbar") %>
+
+<div class="container">
+  <p><%= username %></p>
+  <h3>Category Filter</h3>
+  <form class="" action="/preferences/categories/add" method="POST">
+    <div class="form-group">
+      <input class="form-text" type="text" name="newTerm" value="" placeholder="Keyword">
+      <button type="submit">+</button>
+    </div>
+  </form>
+  <ul class="list-group">
+
+    <% categories.forEach(val => {  %>
+    <form action="/preferences/categories/remove" method="POST">
+      <li id="<%= val %>" class="list-group-item d-flex justify-content-between align-items-center category">
+        <%= val %>
+        <input type="hidden" name="term" value="<%= val %>">
+        <input type="submit" value="Remove" onClick="removeElement(this.parentNode.id)">
+        </input>
+      </li>
+    </form>
+    <% }) %>
+
+  </ul>
+</div>
+
+<script type="text/javascript">
+  function removeElement(elementId) {
+    // Remove element from doc
+    var element = document.getElementById(elementId);
+    element.form.submit();
+    element.parentNode.removeChild(element);
+  }
+</script>
+
+
+<%- include("footer") %>
