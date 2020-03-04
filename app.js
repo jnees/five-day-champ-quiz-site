@@ -162,7 +162,12 @@ app.get("/", function(req, res){
 
   const username = getUserId(req);
   const alias = getUserAlias(req);
-  const matchQuery = buildMatchQuery(req.user.categories);
+  const userCategories = req.user.categories;
+  let matchQuery = {};
+  if (userCategories.length >= 1){
+    matchQuery = buildMatchQuery(req.user.categories);
+  }
+
 
   Clue.aggregate()
 
