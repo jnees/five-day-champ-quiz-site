@@ -2,12 +2,13 @@
 <%- include("navbar") %>
 
 <div class="container">
-  <p><%= username %></p>
-  <h3>Category Filter</h3>
-  <form class="" action="/preferences/categories/add" method="POST">
+  <h1>Preferences</h1>
+  <hr>
+  <h2>Category Filter</h2>
+  <form class="form-inline" action="/preferences/categories/add" method="POST">
     <div class="form-group">
-      <input class="form-text" type="text" name="newTerm" value="" placeholder="Keyword">
-      <button type="submit">+</button>
+      <input class="form-control col" type="text" name="newTerm" value="" placeholder="Keyword">
+      <button class="btn btn-outline-success submitBtn" type="submit">Add</button>
     </div>
   </form>
   <ul class="list-group">
@@ -17,7 +18,7 @@
       <li id="<%= val %>" class="list-group-item d-flex justify-content-between align-items-center category">
         <%= val %>
         <input type="hidden" name="term" value="<%= val %>">
-        <input type="submit" value="Remove" onClick="removeElement(this.parentNode.id)">
+        <input class="btn btn-outline-danger" type="submit" value="Remove" onClick="removeElement(this.parentNode.id)">
         </input>
       </li>
     </form>

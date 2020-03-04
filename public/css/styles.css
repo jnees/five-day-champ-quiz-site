@@ -73,7 +73,6 @@
 }
 
 /* register and login pages */
-
 #banner {
   max-width: 90%;
   margin-bottom: 100px;
@@ -99,4 +98,13 @@
 
 .forgot {
   padding: 30px 0 50px 0;
+}
+
+/* Preferences Page */
+.list-group {
+  font-size: 1.3rem;
+}
+
+.submitBtn {
+  margin-top: 10px;
 }
