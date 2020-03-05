@@ -1,0 +1,29 @@
+<%- include("header") %>
+<%- include("navbar") %>
+
+<div class="container">
+  <h2 class="stats-category">Accuracy</h2>
+  <div class="row">
+    <div class="col-md-4 stat-col">
+      <div class="card stat-card">
+        <h3 class="card-header">Last 50</h3>
+        <p class="card-body"><%= Math.round(rate_50 * 100, 0)%>%</p>
+      </div>
+    </div>
+    <div class="col-md-4 stat-col">
+      <div class="card stat-card">
+        <h3 class="card-header">Last 120</h3>
+        <p class="card-body"><%= Math.round(rate_120 * 100, 0)%>%</p>
+      </div>
+    </div>
+    <div class="col-md-4 stat-col">
+      <div class="card stat-card">
+        <h3 class="card-header">Last 360</h3>
+        <p class="card-body"><%= Math.round(rate_360 * 100, 0)%>%</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include("footer") %>

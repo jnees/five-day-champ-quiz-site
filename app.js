@@ -168,6 +168,14 @@ function buildMatchQuery(arr){
   return q;
 }
 
+// User Records - Last n questions % correct
+function correctRate(user, n){
+  let lastN = user.responses.slice(-n);
+  let correctCount = lastN.filter(response => response.correct == true ).length;
+  let correctRate = correctCount/n;
+  return correctRate;
+}
+
 // ROUTE -- root
 app.get("/", function(req, res){
 
@@ -194,6 +202,9 @@ app.get("/", function(req, res){
         console.log(err);
         res.send("Error retreiving clue.");
       } else {
+
+        const rate_50 = correctRate(req.user, 50);
+
         let options = {
           foundClues: foundClues[0],
           username: username,
@@ -205,6 +216,26 @@ app.get("/", function(req, res){
   );
 });
 
+// Route - stats
+app.route("/stats")
+  .get((req, res) => {
+    const username = getUserId(req);
+    const alias = getUserAlias(req);
+    const rate_50 = correctRate(req.user, 50);
+    const rate_120 = correctRate(req.user, 120);
+    const rate_360 = correctRate(req.user, 360);
+
+    const options = {
+      username: username,
+      alias: alias,
+      rate_50: rate_50,
+      rate_120: rate_120,
+      rate_360: rate_360
+    };
+
+    res.render("stats", options);
+
+  });
 
 // Route - Preferences
 app.route("/preferences")

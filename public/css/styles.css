@@ -108,3 +108,25 @@
 .submitBtn {
   margin: 10px 10px 10px 0;
 }
+
+/*  Stats Page  */
+
+.stat-card {
+  margin: 40px;
+  min-width: 200px;
+  width: 80%;
+}
+
+.stat-card p {
+  font-size: 1.2rem;
+  margin: 0;
+}
+
+.card-header {
+  font-size: 1.5rem;
+}
+
+.stats-category {
+  font-size: 2rem;
+  margin-top: 10px;
+}
