@@ -68,6 +68,21 @@ const clueSchema = new mongoose.Schema({
 
 const Clue = mongoose.model("Clue", clueSchema);
 
+// DB Schema - Responses (to be embedded in UserSchema)
+const Response = new mongoose.Schema({
+  round: Number,
+  value: Number,
+  daily_double: String,
+  category: String,
+  comments: String,
+  answer: String,
+  question: String,
+  air_date: String,
+  notes: String,
+  timestamp: Date,
+  correct: Boolean
+});
+
 // DB Schema - User
 const userSchema = new mongoose.Schema({
   email: String,
@@ -76,7 +91,8 @@ const userSchema = new mongoose.Schema({
   alias: String,
   categories: Array,
   resetPasswordToken: String,
-  resetPasswordExpires: Date
+  resetPasswordExpires: Date,
+  responses: [Response]
 });
 
 // Passport Authentication Local Strategy
@@ -238,6 +254,34 @@ app.route("/preferences/categories/remove")
       });
 
   });
+
+// Route - responses
+app.route("/response")
+ .post((req, res) => {
+   let user = req.user;
+   let body = req.body;
+   let timestamp = new Date();
+   timestamp = timestamp.toLocaleString('en-US');
+
+   let response = {
+     round: body.round,
+     value: body.value,
+     daily_double: body.daily_double,
+     category: body.category,
+     comments: body.comments,
+     answer: body.answer,
+     question: body.question,
+     air_date: body.air_date,
+     notes: body.notes,
+     timestamp: timestamp,
+     correct: body.correct
+   };
+
+   user.responses.push(response);
+   user.save();
+
+   res.redirect("/");
+ });
 
 // Route -- login
 app.route("/login")
