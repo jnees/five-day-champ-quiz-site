@@ -2,7 +2,11 @@
 <%- include("navbar") %>
 
 <div class="container">
-  <h2 class="stats-category">Accuracy</h2>
+
+  <h2 class="stats-category">Questions Answered: <%= ttlAnswered %></h2>
+  <hr />
+
+  <h3 class="stats-category">Accuracy</h3>
   <div class="row">
     <div class="col-md-4 stat-col">
       <div class="card stat-card">
@@ -10,20 +14,44 @@
         <p class="card-body"><%= Math.round(rate_50 * 100, 0)%>%</p>
       </div>
     </div>
+    <% if(ttlAnswered > 120){%>
     <div class="col-md-4 stat-col">
       <div class="card stat-card">
         <h3 class="card-header">Last 120</h3>
         <p class="card-body"><%= Math.round(rate_120 * 100, 0)%>%</p>
       </div>
     </div>
+    <% }%>
+    <% if(ttlAnswered > 360){%>
     <div class="col-md-4 stat-col">
       <div class="card stat-card">
         <h3 class="card-header">Last 360</h3>
         <p class="card-body"><%= Math.round(rate_360 * 100, 0)%>%</p>
       </div>
     </div>
-
+    <% }%>
   </div>
+  <hr />
+
+  <div class="reset">
+    <h2 class="stats-category">Reset All Records</h2>
+    <p class="warning">This will clear all previous responses and cannot be undone.<p>
+
+    <form class="reset-form" action="/stats/reset" method="POST">
+      <div class="input-group">
+        <label class="input-group-text" for="resetInput">Type "RESET": </label>
+        <input type="text" name="resetInput" value="">
+        <input type="submit" name="" value="Submit" class="btn btn-lg btn-danger">
+      </div>
+    </form>
+    <% if(messages.resetErr){ %>
+      <div class="alert alert-danger alert-dismissible fade show">
+        <strong>Error!</strong> <%= messages.resetErr %>
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+      </div>
+    <% } %>
+  </div>
+
 </div>
 
 <%- include("footer") %>

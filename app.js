@@ -224,18 +224,36 @@ app.route("/stats")
     const rate_50 = correctRate(req.user, 50);
     const rate_120 = correctRate(req.user, 120);
     const rate_360 = correctRate(req.user, 360);
+    const ttlAnswered = req.user.responses.length;
 
     const options = {
       username: username,
       alias: alias,
       rate_50: rate_50,
       rate_120: rate_120,
-      rate_360: rate_360
+      rate_360: rate_360,
+      ttlAnswered: ttlAnswered
     };
 
     res.render("stats", options);
 
   });
+
+  // Route - Reset stats
+  app.route("/stats/reset")
+    .post((req, res) => {
+      const user = req.user;
+      const resetInput = req.body.resetInput;
+      if(resetInput !== "RESET"){
+        req.flash("resetErr", "Must type 'RESET' to clear records");
+        res.redirect("/stats");
+        return;
+      } else {
+        user.responses = [];
+        user.save();
+        res.redirect("/stats");
+      }
+    });
 
 // Route - Preferences
 app.route("/preferences")

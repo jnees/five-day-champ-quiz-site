@@ -118,7 +118,7 @@
 }
 
 .stat-card p {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   margin: 0;
 }
 
@@ -129,4 +129,17 @@
 .stats-category {
   font-size: 2rem;
   margin-top: 10px;
+}
+
+.reset {
+  font-size: 1.25rem;
+}
+
+.reset p {
+  color: #C92332;
+}
+
+.alert {
+  margin: 10px 0 10px 0;
+  width: 100%;
 }
