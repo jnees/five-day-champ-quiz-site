@@ -15,7 +15,7 @@
   font-size: 1.8rem;
   margin: 30px auto 40px auto;
   position: relative;
-  padding-top: 30%;
+  top: 80px;
   /* Animation */
   animation-name: title;
   animation-duration: 1.8s;
@@ -29,10 +29,10 @@
     {opacity: 1;}
   50%
     {opacity: 0;
-      padding-top: 0;}
+      top: 0;}
   100%
     {opacity: 1;
-    padding-top: 0;
+    top: 0;
   }
 }
 
