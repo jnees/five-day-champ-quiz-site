@@ -205,6 +205,11 @@ app.get("/", function(req, res){
 
         const rate_50 = correctRate(req.user, 50);
 
+        // Cleanup Text in found reponse.
+        foundClues[0].category= foundClues[0].category.toString().replace(/\\/g, "");
+        foundClues[0].answer = foundClues[0].answer.toString().replace(/\\/g, "");
+        foundClues[0].question = foundClues[0].question.toString().replace(/\\/g, "");
+
         let options = {
           foundClues: foundClues[0],
           username: username,
