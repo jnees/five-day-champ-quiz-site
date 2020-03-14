@@ -144,12 +144,20 @@
 }
 
 /* Preferences Page */
+.categoryLabel {
+  margin: 15px 0;
+}
+
 .list-group {
   font-size: 1.3rem;
 }
 
 .submitBtn {
   margin: 10px 10px 10px 0;
+}
+
+.sliderLabel {
+  font-size: 1.3rem;
 }
 
 /*  Stats Page  */

@@ -92,7 +92,8 @@ const userSchema = new mongoose.Schema({
   categories: Array,
   resetPasswordToken: String,
   resetPasswordExpires: Date,
-  responses: [Response]
+  responses: [Response],
+  difficulty: Number
 });
 
 // Passport Authentication Local Strategy
@@ -153,19 +154,34 @@ function validAlias(alias){
   return passed;
 }
 
-// Clue Query Builder
-function buildMatchQuery(arr){
-  // User category terms from prefs => match query for clue.aggregate()
-  let words = arr;
-  let q = {$or : []};
+function buildMatchQuery(wordArray, difficulty){
 
-  words.forEach(val => {
-    var term = val.toUpperCase(val);
-    var frag = {category: RegExp(term)};
-    q.$or.push(frag);
-  });
+  // Clue Value Filter
+  let valueFrag =
+    {$or:
+      [
+        {$and: [{round: 1}, {value: {$lte: 200 * difficulty }}]},
+        {$and: [{round: 2}, {value: {$lte: 400 * difficulty }}]},
+        {round: 3}
+      ]
+    };
 
-  return q;
+  // Add Category Filter if needed and return, else return value filter only.
+  if(wordArray.length > 0){
+    let q = {$and: [{$or : []}]};
+
+    wordArray.forEach(val => {
+      var term = val.toUpperCase(val);
+      var termFrag = {category: RegExp(term)};
+      q.$and[0].$or.push(termFrag);
+    });
+
+    q.$and.push(valueFrag);
+
+    return q;
+  } else {
+    return valueFrag;
+  }
 }
 
 // User Records - Last n questions % correct
@@ -187,11 +203,15 @@ app.get("/", function(req, res){
   const username = getUserId(req);
   const alias = getUserAlias(req);
   const userCategories = req.user.categories;
-  let matchQuery = {};
-  if (userCategories.length >= 1){
-    matchQuery = buildMatchQuery(req.user.categories);
+
+  let difficulty = req.user.difficulty;
+  if (difficulty == undefined) {
+    difficulty = 5;
   }
 
+  var matchQuery = {};
+
+  matchQuery = buildMatchQuery(req.user.categories, difficulty);
 
   Clue.aggregate()
 
@@ -269,10 +289,18 @@ app.route("/preferences")
     const alias = getUserAlias(req);
     const categories = req.user.categories;
 
+    let prevDiff = req.user.difficulty;
+    if (prevDiff == undefined) {
+      prevDiff = 5;
+    }
+
+    console.log(prevDiff);
+
     options = {username: username,
                alias: alias,
                categories: categories,
-               updateHandler: 'updateHandler();'
+               updateHandler: 'updateHandler();',
+               prevDiff: prevDiff
              };
     res.render("preferences", options);
   });
@@ -292,8 +320,8 @@ app.route("/preferences/categories/add")
 
   });
 
-  // Route - user delete category from preferences
-  //:cat([A-Za-z0-9\s%20-]+)
+// Route - user delete category from preferences
+//:cat([A-Za-z0-9\s%20-]+)
 app.route("/preferences/categories/remove")
 
   .post((req, res) => {
@@ -306,6 +334,26 @@ app.route("/preferences/categories/remove")
       user.save(() => {
         res.redirect('/preferences');
       });
+
+  });
+
+// Route - update user difficulty preference
+app.route("/preferences/difficulty")
+  .post((req, res) => {
+    let user = req.user;
+    let body = req.body;
+
+    let prevDiff = req.user.difficulty;
+    if (prevDiff == undefined) {
+      prevDiff = 5;
+    }
+
+    let newDiff = body.newDifficulty;
+    if (prevDiff != newDiff){
+      user.difficulty = newDiff;
+      user.save();
+    }
+    res.redirect('/preferences');
 
   });
 

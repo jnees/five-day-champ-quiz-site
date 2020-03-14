@@ -4,7 +4,8 @@
 <div class="container">
   <h1>Preferences</h1>
   <hr>
-  <h2>Category Filter</h2>
+  <!-- Category Filter -->
+  <h2 class="categoryLabel">Category Filter</h2>
   <form class="form-inline" action="/preferences/categories/add" method="POST">
     <div class="form-group">
       <input class="form-control col" type="text" name="newTerm" value="" placeholder="Keyword">
@@ -25,6 +26,33 @@
     <% }) %>
 
   </ul>
+
+  <hr />
+  <h2 class='categoryLabel'>Difficulty</h2>
+
+<!-- Difficulty Selector -->
+<div class="container">
+  <div class="row">
+
+    <div class="col-2">
+      <p class="sliderLabel">Wolf Blitzer<p>
+    </div>
+
+    <div class="col-6">
+      <form action="/preferences/difficulty" method="POST">
+        <input onClick="updateDiff(this, <%=prevDiff%>)" name="newDifficulty" type="range" class="custom-range slider" min="1" max="5" value=<%= prevDiff %>></input>
+      </form>
+
+    </div>
+
+    <div class="col-2">
+      <p class='sliderLabel'>Ken Jennings<p>
+    </div>
+  </div>
+</div>
+
+
+
 </div>
 
 <script type="text/javascript">
@@ -34,6 +62,18 @@
     element.form.submit();
     element.parentNode.removeChild(element);
   }
+</script>
+
+<script type="text/javascript">
+  function updateDiff(e, prevDiff) {
+    console.log("Called");
+    console.log(prevDiff);
+    var newDiff = e.value;
+    console.log(newDiff);
+    if(newDiff != prevDiff){
+      e.form.submit();
+  }
+}
 </script>
 
 
