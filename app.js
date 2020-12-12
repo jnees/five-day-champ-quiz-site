@@ -4,7 +4,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
 const session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
 const passport = require("passport");
@@ -23,7 +22,7 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 
 app.use(bodyParser.urlencoded(
-  {extended: true}
+  { extended: true }
 ));
 
 // Persistent Session Storage
@@ -105,23 +104,23 @@ const User = mongoose.model("User", userSchema);
 // Passport local user strategy, serialize/deserialize user.
 passport.use(User.createStrategy());
 
-passport.serializeUser(function(user, done) {
+passport.serializeUser(function (user, done) {
   done(null, user.id);
 });
 
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
+passport.deserializeUser(function (id, done) {
+  User.findById(id, function (err, user) {
     done(err, user);
   });
 });
 
 // Passport Google OAuth20 strategy
 passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/home"
-  },
-  function(accessToken, refreshToken, profile, cb) {
+  clientID: process.env.GOOGLE_CLIENT_ID,
+  clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+  callbackURL: "/auth/google/home"
+},
+  function (accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ googleId: profile.id }, function (err, user) {
       return cb(err, user);
     });
@@ -130,23 +129,27 @@ passport.use(new GoogleStrategy({
 
 //  Helper Functions
 
-function getUserId(request){
+function getUserId(request) {
+  // Returns logged in userId
   let userId = "";
-  if(request.isAuthenticated() === true){
-     userId = request.user.id;
-   }
-   return userId;
+  if (request.isAuthenticated() === true) {
+    userId = request.user.id;
+  }
+  return userId;
 }
 
-function getUserAlias(request){
+function getUserAlias(request) {
+  // Returns logged in userAlias
   let userAlias = "";
-  if(request.isAuthenticated() === true){
-     userAlias = request.user.alias;
-   }
-   return userAlias;
+  if (request.isAuthenticated() === true) {
+    userAlias = request.user.alias;
+  }
+  return userAlias;
 }
 
-function validAlias(alias){
+function validAlias(alias) {
+  // Checks to see if requested Alias is a valid format. Alias does not need to be unique.
+
   // Check length (2-16) and special chars (only alphanumeric and underscore allowed);
   const format = /^(?!.*\.\.)(?!.*\.$)[^\W][\w.]{2,16}$/;
   const passed = (format.test(alias));
@@ -154,25 +157,27 @@ function validAlias(alias){
   return passed;
 }
 
-function buildMatchQuery(wordArray, difficulty){
+function buildMatchQuery(wordArray, difficulty) {
+  // Builds and returns a mongodb query string for clues based on user preferences.
 
   // Clue Value Filter
   let valueFrag =
-    {$or:
+  {
+    $or:
       [
-        {$and: [{round: 1}, {value: {$lte: 200 * difficulty }}]},
-        {$and: [{round: 2}, {value: {$lte: 400 * difficulty }}]},
-        {round: 3}
+        { $and: [{ round: 1 }, { value: { $lte: 200 * difficulty } }] },
+        { $and: [{ round: 2 }, { value: { $lte: 400 * difficulty } }] },
+        { round: 3 }
       ]
-    };
+  };
 
   // Add Category Filter if needed and return, else return value filter only.
-  if(wordArray.length > 0){
-    let q = {$and: [{$or : []}]};
+  if (wordArray.length > 0) {
+    let q = { $and: [{ $or: [] }] };
 
     wordArray.forEach(val => {
       var term = val.toUpperCase(val);
-      var termFrag = {category: RegExp(term)};
+      var termFrag = { category: RegExp(term) };
       q.$and[0].$or.push(termFrag);
     });
 
@@ -185,17 +190,17 @@ function buildMatchQuery(wordArray, difficulty){
 }
 
 // User Records - Last n questions % correct
-function correctRate(user, n){
+function correctRate(user, n) {
   let lastN = user.responses.slice(-n);
-  let correctCount = lastN.filter(response => response.correct == true ).length;
-  let correctRate = correctCount/n;
+  let correctCount = lastN.filter(response => response.correct == true).length;
+  let correctRate = correctCount / n;
   return correctRate;
 }
 
 // ROUTE -- root
-app.get("/", function(req, res){
+app.get("/", function (req, res) {
 
-  if(req.isAuthenticated() === false){
+  if (req.isAuthenticated() === false) {
     res.redirect("/login");
     return;
   }
@@ -218,7 +223,7 @@ app.get("/", function(req, res){
     .match(matchQuery)
     .sample(1)
     .exec(function (err, foundClues) {
-      if(err){
+      if (err) {
         console.log(err);
         res.send("Error retreiving clue.");
       } else {
@@ -226,7 +231,7 @@ app.get("/", function(req, res){
         const rate_50 = correctRate(req.user, 50);
 
         // Cleanup Text in found reponse.
-        foundClues[0].category= foundClues[0].category.toString().replace(/\\/g, "");
+        foundClues[0].category = foundClues[0].category.toString().replace(/\\/g, "");
         foundClues[0].answer = foundClues[0].answer.toString().replace(/\\/g, "");
         foundClues[0].question = foundClues[0].question.toString().replace(/\\/g, "");
 
@@ -237,8 +242,9 @@ app.get("/", function(req, res){
         };
 
         res.render("home", options);
-    }}
-  );
+      }
+    }
+    );
 });
 
 // Route - stats
@@ -264,21 +270,21 @@ app.route("/stats")
 
   });
 
-  // Route - Reset stats
-  app.route("/stats/reset")
-    .post((req, res) => {
-      const user = req.user;
-      const resetInput = req.body.resetInput;
-      if(resetInput !== "RESET"){
-        req.flash("resetErr", "Must type 'RESET' to clear records");
-        res.redirect("/stats");
-        return;
-      } else {
-        user.responses = [];
-        user.save();
-        res.redirect("/stats");
-      }
-    });
+// Route - Reset stats
+app.route("/stats/reset")
+  .post((req, res) => {
+    const user = req.user;
+    const resetInput = req.body.resetInput;
+    if (resetInput !== "RESET") {
+      req.flash("resetErr", "Must type 'RESET' to clear records");
+      res.redirect("/stats");
+      return;
+    } else {
+      user.responses = [];
+      user.save();
+      res.redirect("/stats");
+    }
+  });
 
 // Route - Preferences
 app.route("/preferences")
@@ -296,12 +302,13 @@ app.route("/preferences")
 
     console.log(prevDiff);
 
-    options = {username: username,
-               alias: alias,
-               categories: categories,
-               updateHandler: 'updateHandler();',
-               prevDiff: prevDiff
-             };
+    options = {
+      username: username,
+      alias: alias,
+      categories: categories,
+      updateHandler: 'updateHandler();',
+      prevDiff: prevDiff
+    };
     res.render("preferences", options);
   });
 
@@ -310,13 +317,13 @@ app.route("/preferences")
 app.route("/preferences/categories/add")
 
   .post((req, res) => {
-      let term = req.body.newTerm;
-      let user = req.user;
-      console.log(user);
-      user.categories.push(term);
-      user.save(() => {
-        res.redirect('/preferences');
-      });
+    let term = req.body.newTerm;
+    let user = req.user;
+    console.log(user);
+    user.categories.push(term);
+    user.save(() => {
+      res.redirect('/preferences');
+    });
 
   });
 
@@ -325,15 +332,15 @@ app.route("/preferences/categories/add")
 app.route("/preferences/categories/remove")
 
   .post((req, res) => {
-      let term = req.body.term;
-      let user = req.user;
-      const index = user.categories.indexOf(term);
-        if (index > -1) {
-          user.categories.splice(index, 1);
-        }
-      user.save(() => {
-        res.redirect('/preferences');
-      });
+    let term = req.body.term;
+    let user = req.user;
+    const index = user.categories.indexOf(term);
+    if (index > -1) {
+      user.categories.splice(index, 1);
+    }
+    user.save(() => {
+      res.redirect('/preferences');
+    });
 
   });
 
@@ -349,7 +356,7 @@ app.route("/preferences/difficulty")
     }
 
     let newDiff = body.newDifficulty;
-    if (prevDiff != newDiff){
+    if (prevDiff != newDiff) {
       user.difficulty = newDiff;
       user.save();
     }
@@ -359,31 +366,31 @@ app.route("/preferences/difficulty")
 
 // Route - responses
 app.route("/response")
- .post((req, res) => {
-   let user = req.user;
-   let body = req.body;
-   let timestamp = new Date();
-   timestamp = timestamp.toLocaleString('en-US');
+  .post((req, res) => {
+    let user = req.user;
+    let body = req.body;
+    let timestamp = new Date();
+    timestamp = timestamp.toLocaleString('en-US');
 
-   let response = {
-     round: body.round,
-     value: body.value,
-     daily_double: body.daily_double,
-     category: body.category,
-     comments: body.comments,
-     answer: body.answer,
-     question: body.question,
-     air_date: body.air_date,
-     notes: body.notes,
-     timestamp: timestamp,
-     correct: body.correct
-   };
+    let response = {
+      round: body.round,
+      value: body.value,
+      daily_double: body.daily_double,
+      category: body.category,
+      comments: body.comments,
+      answer: body.answer,
+      question: body.question,
+      air_date: body.air_date,
+      notes: body.notes,
+      timestamp: timestamp,
+      correct: body.correct
+    };
 
-   user.responses.push(response);
-   user.save();
+    user.responses.push(response);
+    user.save();
 
-   res.redirect("/");
- });
+    res.redirect("/");
+  });
 
 // Route -- login
 app.route("/login")
@@ -392,12 +399,12 @@ app.route("/login")
     const username = getUserId(req);
     const alias = getUserAlias(req);
 
-    let options = {username: username, alias: alias};
+    let options = { username: username, alias: alias };
     res.render("login", options);
   })
 
-  .post(passport.authenticate("local", {failureRedirect: "/login"}), function(req, res){
-      res.redirect("/");
+  .post(passport.authenticate("local", { failureRedirect: "/login" }), function (req, res) {
+    res.redirect("/");
   });
 
 //Route -- register
@@ -407,7 +414,7 @@ app.route("/register")
     const username = getUserId(req);
     const alias = getUserAlias(req);
 
-    let options = {username: username, alias: alias};
+    let options = { username: username, alias: alias };
 
     res.render("register", options);
   })
@@ -421,7 +428,7 @@ app.route("/register")
     }
 
     // Check username. If taken, flash err.
-    User.register({username: req.body.username, alias: req.body.alias}, req.body.password, (err, user) => {
+    User.register({ username: req.body.username, alias: req.body.alias }, req.body.password, (err, user) => {
       if (err) {
         console.log(err);
         req.flash("usernameTaken", "That username is already in use. Please select another");
@@ -443,9 +450,9 @@ app.route("/auth/google")
 
 app.route("/auth/google/home")
 
-    .get(passport.authenticate('google', {failureRedirect: "/login"}), function(req, res){
-      res.redirect("/");
-    });
+  .get(passport.authenticate('google', { failureRedirect: "/login" }), function (req, res) {
+    res.redirect("/");
+  });
 
 // ROUTE - Logout
 app.route("/logout")
@@ -460,6 +467,6 @@ let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
 }
-app.listen(port, function() {
+app.listen(port, function () {
   console.log("Quiz-site server has started.");
 });

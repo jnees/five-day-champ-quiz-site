@@ -1,62 +1,67 @@
 <%- include("header") -%>
 <%- include("navbar") -%>
+
 <body>
 
-<div class="container-flex mt-5 google-reg-box">
-  <h1 class="goog-reg-header">Register using Google</h1>
-  <div class="row  d-flex justify-content-center">
-    <div class="col-sm-4 register-goog-btn">
-          <a id="goog-reg-btn" class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
-            <i class="fa fa-google"></i>
-            Register using Google
-          </a>
-    </div>
-  </div>
-
-  <div class="row register-hr">
-    <div class="col"><hr></div>
-    <div class="col-auto">OR</div>
-    <div class="col"><hr></div>
-  </div>
-  <h1>Create an account</h1>
-
-  <div class="row  d-flex justify-content-center">
-    <div id="create-account-form" class="col-sm-8">
-      <div  class="card">
-        <div class="card-body">
-
-          <!-- Makes POST request to /register route -->
-          <form class="register-form" action="/register" method="POST">
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" class="form-control" name="username">
-            </div>
-            <div class="form-group">
-              <label for="password">Password</label>
-              <input type="password" class="form-control" name="password">
-            </div>
-            <div class="form-group">
-              <label for="verify-password">Verify Password</label>
-              <input type="password" class="form-control" name="verify-password">
-            </div>
-            <div class="form-group">
-              <label for="verify-password">Username (How your name will appear on the site.)</label>
-              <input type="text" class="form-control" name="alias">
-            </div>
-            <div class="error">
-              <% if(messages.usernameTaken){ %>
-              <p> Message: <%= messages.usernameTaken %></p>
-              <% } else if(messages.usernameInvalid){ %>
-                <p> Message: <%= messages.usernameInvalid %></p>
-                <% } %>
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-          </form>
-        </div>
+  <div class="container-flex mt-5 google-reg-box">
+    <h1 class="goog-reg-header">Register using Google</h1>
+    <div class="row  d-flex justify-content-center">
+      <div class="col-sm-4 register-goog-btn">
+        <a id="goog-reg-btn" class="btn btn-block btn-social btn-google" href="/auth/google" role="button">
+          <i class="fa fa-google"></i>
+          Register using Google
+        </a>
       </div>
     </div>
 
-  </div>
-</div>
+    <div class="row register-hr">
+      <div class="col">
+        <hr>
+      </div>
+      <div class="col-auto">OR</div>
+      <div class="col">
+        <hr>
+      </div>
+    </div>
+    <h1>Create an account</h1>
 
-<%- include("footer") -%>
+    <div class="row  d-flex justify-content-center">
+      <div id="create-account-form" class="col-sm-8">
+        <div class="card">
+          <div class="card-body">
+
+            <!-- Makes POST request to /register route -->
+            <form class="register-form" action="/register" method="POST">
+              <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" class="form-control" name="username">
+              </div>
+              <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password">
+              </div>
+              <div class="form-group">
+                <label for="verify-password">Verify Password</label>
+                <input type="password" class="form-control" name="verify-password">
+              </div>
+              <div class="form-group">
+                <label for="verify-password">Username (How your name will appear on the site.)</label>
+                <input type="text" class="form-control" name="alias">
+              </div>
+              <div class="error">
+                <% if(messages.usernameTaken){ %>
+                <p> Message: <%= messages.usernameTaken %></p>
+                <% } else if(messages.usernameInvalid){ %>
+                <p> Message: <%= messages.usernameInvalid %></p>
+                <% } %>
+              </div>
+              <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <%- include("footer") -%>
