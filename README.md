@@ -8,4 +8,4 @@ You can select a difficulty level, ranging from Wolf Blitzer (Very Easy) to Ken 
 
 It should be noted that this is in no way a commercial product, but it is live [here](http://quiz-prep-site.herokuapp.com/login) on a heroku free tier if you'd like to try it out (you may have to wait a moment for it to wake up). I have made the code public to share with other learners and with potential employers as a portfolio project.
 
-The webapp uses Node.js, MongoDB, Express, AWS S3, Heroku, and HTML/CSS/Bootstrap.
+The webapp uses Node.js, MongoDB, Express, Heroku, and HTML/CSS/Bootstrap.
