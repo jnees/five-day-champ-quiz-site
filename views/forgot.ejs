@@ -1,0 +1,17 @@
+<%- include("header") %>
+
+<div class="container-flex mt-5 google-reg-box">
+
+    <img id="banner" src="images/FIVEDAYCHAMP.png"></img>
+    <h2>Password Reset</h2>
+    <!-- Makes POST request to /forgot route -->
+    <div class="container-flex mt-5 google-reg-box">
+        <form class="register-form" action="/forgot" method="POST">
+            <div class="form-group">
+                <label for="email">Enter Email Address</label>
+                <input type="email" class="form-control" name="email">
+            </div>
+            <button type="submit" class="btn btn-primary">Send Reset Email</button>
+        </form>
+    </div>
+</div>

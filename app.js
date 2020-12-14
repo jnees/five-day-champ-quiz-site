@@ -13,6 +13,7 @@ const findOrCreate = require('mongoose-findorcreate');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const flash = require("express-flash");
 const nodemailer = require("nodemailer");
+const crypto = require("crypto");
 const async = require("async");
 
 const app = express();
@@ -406,6 +407,183 @@ app.route("/login")
   .post(passport.authenticate("local", { failureRedirect: "/login" }), function (req, res) {
     res.redirect("/");
   });
+
+//Route -- Forgot Password
+app.route("/forgot")
+
+  .get((req, res) => {
+    res.render("forgot")
+  })
+
+  .post((req, res) => {
+    // Function to create a distinct token for password reset.
+    function createToken(done) {
+      crypto.randomBytes(20, function (err, buf) {
+        if (err) {
+          console.log(err);
+          return res.redirect("/forgot");
+        } else {
+          var token = buf.toString("hex");
+          done(null, token);
+        }
+      })
+    }
+
+
+    // Verify user and add token w/expiry to their db record.
+    function updateUser(token, done) {
+      User.findOne({ username: req.body.email }, function (err, user) {
+        if (err) {
+          console.log(err);
+          res.redirect("/forgot");
+        } else if (!user) {
+          console.log("Email address not associated with a user.");
+          res.redirect("/forgot");
+        } else {
+          // Update user record with token and expiration
+          user.resetPasswordToken = token;
+          user.resetPasswordExpires = Date.now() + 3600000;
+          user.save(function (err) {
+            done(err, token, user)
+          });
+        }
+      })
+    }
+
+    function sendRecoveryEmail(token, user, done) {
+      const email = user.username;
+
+      // Configure Transport
+      const smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS
+        }
+      });
+
+      // Set Mail To/From/Subject/Body
+      const mailOptions = {
+        to: email,
+        from: process.env.MAIL_USER,
+        subject: "FiveDayChamp Password Reset",
+        text: 'You are receiving this because you requested to reset your password. \n\n' +
+          'Please use this link to reset your password: ' +
+          'http://quiz-prep-site.herokuapp.com/recover/' + token + '\n\n' +
+          'This link will expire in one hour.' + '\n\n' +
+          'If you did not request a password reset, please ignore this email and your password will remain unchanged.'
+      };
+
+      // Send Mail
+      smtpTransport.sendMail(mailOptions, function (err) {
+        console.log("Recovery email sent to " + email);
+        req.flash("success", 'An email has been sent to ' + email + ' with further instructions.');
+        done(err, 'Password recovery email has been sent.');
+      });
+
+    }
+
+    // Waterfall: createtoken, then findUser, then sendRecoveryEmail:
+    async.waterfall([createToken, updateUser, sendRecoveryEmail], function (err, result) {
+      if (err) {
+        console.log(err);
+        res.redirect("/forgot")
+      } else {
+        res.send(result)
+      }
+    });
+
+  })
+
+// Route -- Password Update
+app.route("/recover/:token([A-Za-z0-9]+)")
+
+  .get(function (req, res) {
+    const token = req.params.token;
+    User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+      if (!user) {
+        console.log("Password reset token invalid or expired.");
+        res.redirect("/forgot")
+      } else {
+        res.render("passwordRecovery", { token: token });
+      }
+    });
+  })
+
+  .post(function (req, res) {
+
+    const token = req.params.token;
+
+    // Handle Password Update
+    function updatePassword(done) {
+      // Find user with this token and validate that it is not expired.
+      User.findOne({ resetPasswordToken: token, resetPasswordExpires: { $gt: Date.now() } }, function (err, user) {
+        if (!user) {
+          console.log("Password reset token invalid or expired. Please request a new reset.");
+          return res.redirect("/forgot");
+        }
+
+        // If password matches verify password box, update password.
+        if (req.body.password == req.body.verify) {
+          user.setPassword(req.body.password, function (err) {
+
+            // Remove token and token expiration entry from user
+            user.resetPasswordToken = undefined;
+            user.resetPasswordExpires = undefined;
+
+            // Save and log-in user.
+            user.save(function (err) {
+              req.logIn(user, function (err) {
+                done(err, user);
+              });
+            });
+          });
+        } else {
+          // Password and verify do not match
+          console.log("Passwords do not match. Please try again.");
+          req.flash("error", "Passwords do not match, please try again.");
+          return res.redirect("back");
+        }
+      });
+    }
+
+    // Send Confirmation email for update
+    function sendUpdateConfirmation(user, done) {
+      const email = user.username;
+
+      // Configure transport
+      const smtpTransport = nodemailer.createTransport({
+        service: "Gmail",
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS
+        }
+      });
+
+      // Set Mail To/From/Subject/Body
+      const mailOptions = {
+        to: email,
+        from: process.env.MAIL_USER,
+        subject: "Your FiveDayChamp password has been updated",
+        text: "You are receiving this email as a confirmation that your FiveDayChamp password has been updated.\n\n"
+      };
+
+      // Send Mail
+      smtpTransport.sendMail(mailOptions, function (err) {
+        console.log("Password Reset Confirmation email sent to " + email);
+        done(err, res.redirect("/"));
+      });
+    }
+
+    // Async waterfall execute -> 1. Update Password, then 2. Send Confirmation Email
+    async.waterfall([updatePassword, sendUpdateConfirmation], function (err) {
+      if (err) {
+        console.log(err);
+      }
+      res.redirect("/")
+    })
+  })
+
 
 //Route -- register
 app.route("/register")
