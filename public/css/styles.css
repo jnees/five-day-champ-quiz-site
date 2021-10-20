@@ -121,6 +121,11 @@
   margin-bottom: 100px;
 }
 
+#login-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 #goog-reg-btn {
   text-align: center;
 }
