@@ -148,6 +148,12 @@
   padding: 20px 0 0 0;
 }
 
+/* Password Reset */
+#forgot-inner {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 /* Preferences Page */
 .categoryLabel {
   margin: 15px 0;
