@@ -42,6 +42,16 @@ app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
 
+// HTTP -> HTTPS redirect
+if(process.env.NODE_ENV === 'production') {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https')
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    else
+      next()
+  })
+}
+
 // DB connect to Mongo Atlas
 const uri = "mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASS + process.env.DB_CLUSTER;
 mongoose.connect(uri, {
