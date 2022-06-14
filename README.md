@@ -5,7 +5,7 @@ FiveDayChamp is a webapp/trivia training game that was born out of my family's l
 
 Since FiveDayChamp is a trainer and not a competitive game, there is no need to keep score and no need for clunky answer checking. It works more like flashcards. If you got the answer to the question right, you click the correct button. That's it!
 
-You can select a difficulty level, ranging from Wolf Blitzer (Very Easy) to Ken Jennings (Very Hard). You can also narrow the questions down with certain keywords that you want to focus on. "I'll take 'Foods that start with the letter Q' for $1000". The game keeps track of your accuracy, which you can see in your reports.
+You can select a difficulty level, ranging from Wolf Blitzer (Very Easy) to Ken Jennings (Very Hard). You can also narrow the questions down with certain keywords that you want to focus on. "I'll take 'Foods that start with the letter Q for $1000". The game keeps track of your accuracy, which you can see in your reports.
 
 ## Components
 
